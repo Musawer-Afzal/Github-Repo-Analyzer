@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from collections import Counter
 
 class AnalyticsService:
@@ -23,11 +23,15 @@ class AnalyticsService:
         most_forked = max(repos, key=lambda x: x['forks']) if repos else None
         
         # Language distribution
-        languages = [repo['language'] for repo in repos if repo['language'] != 'Unknown']
+        languages = [
+            repo['language']
+            for repo in repos
+            if repo.get('language') and repo['language'] != 'Unknown'
+        ]
         language_dist = dict(Counter(languages))
         
         # Inactive repos (no updates in 6 months)
-        six_months_ago = datetime.now().timestamp() - (180 * 24 * 3600)
+        six_months_ago = datetime.now(timezone.utc).timestamp()
         inactive_repos = [
             repo['name'] for repo in repos
             if datetime.fromisoformat(repo['updated_at'].replace('Z', '+00:00')).timestamp() < six_months_ago
@@ -59,8 +63,13 @@ class AnalyticsService:
         forks_score = min(sum(repo['forks'] for repo in repos) / 5, 20)
         
         # Activity score (recent updates)
-        recent_repos = sum(1 for repo in repos 
-                          if (datetime.now() - datetime.fromisoformat(repo['updated_at'].replace('Z', '+00:00'))).days < 90)
+        recent_repos = sum(
+            1 for repo in repos
+            if (
+                datetime.now(timezone.utc) -
+                datetime.fromisoformat(repo['updated_at'].replace('Z', '+00:00'))
+            ).days < 90
+        )
         activity_score = (recent_repos / len(repos)) * 25
         
         # Issue management score

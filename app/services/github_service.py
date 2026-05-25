@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 import httpx
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 class GitHubService:
     def __init__(self, client: httpx.AsyncClient):
@@ -32,7 +32,10 @@ class GitHubService:
             
             # Calculate account age
             created_at = datetime.strptime(data['created_at'], '%Y-%m-%dT%H:%M:%SZ')
-            account_age_days = (datetime.now() - created_at).days
+            account_age_days = (
+                datetime.now(timezone.utc) -
+                created_at.replace(tzinfo=timezone.utc)
+            ).days
             
             return {
                 "login": data['login'],
@@ -69,12 +72,12 @@ class GitHubService:
             for repo in repos[:30]:  # Limit to 30 repos for performance
                 enriched = {
                     "name": repo['name'],
-                    "description": repo.get('description', 'No description'),
+                    "description": repo.get('description') or 'No description available',
                     "stars": repo['stargazers_count'],
                     "forks": repo['forks_count'],
                     "open_issues": repo['open_issues_count'],
                     "size_kb": repo['size'],
-                    "language": repo.get('language', 'Unknown'),
+                    "language": repo.get('language') or 'Unknown',
                     "updated_at": repo['updated_at'],
                     "html_url": repo['html_url'],
                     "created_at": repo['created_at']
