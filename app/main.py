@@ -25,7 +25,3 @@ templates = Jinja2Templates(directory="app/templates")
 # Include routers
 app.include_router(home.router)
 app.include_router(github.router)
-
-@app.get("/", response_class=HTMLResponse)
-async def root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
