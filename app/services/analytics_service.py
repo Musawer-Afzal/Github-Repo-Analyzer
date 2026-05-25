@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from collections import Counter
 
 class AnalyticsService:
@@ -31,10 +31,12 @@ class AnalyticsService:
         language_dist = dict(Counter(languages))
         
         # Inactive repos (no updates in 6 months)
-        six_months_ago = datetime.now(timezone.utc).timestamp()
+        six_months_ago = datetime.now(timezone.utc) - timedelta(days=180)
+
         inactive_repos = [
-            repo['name'] for repo in repos
-            if datetime.fromisoformat(repo['updated_at'].replace('Z', '+00:00')).timestamp() < six_months_ago
+            repo['name']
+            for repo in repos
+            if datetime.fromisoformat(repo['updated_at'].replace('Z', '+00:00')) < six_months_ago
         ]
         
         # Average repo size
