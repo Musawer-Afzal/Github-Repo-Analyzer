@@ -9,7 +9,7 @@ from ..utils.error_handlers import handle_github_error
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
-@router.get("/analyze/{username}", response_class=HTMLResponse)
+@router.get("/analyze", response_class=HTMLResponse)
 async def analyze_user(request: Request, username: str):
     # Validate input
     is_valid, error_msg = validate_github_username(username)
@@ -51,8 +51,5 @@ async def analyze_user(request: Request, username: str):
             status_code=e.status_code
         )
     except Exception as e:
-        return templates.TemplateResponse(
-            "error.html",
-            {"request": request, "error": "An unexpected error occurred. Please try again later."},
-            status_code=500
-        )
+        print("ERROR:", str(e))
+        raise e
