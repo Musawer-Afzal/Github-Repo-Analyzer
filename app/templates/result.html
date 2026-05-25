@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis for {{ user.login }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-8">
+    <!-- User Profile Section -->
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
+            <div class="flex items-center space-x-6">
+                <img src="{{ user.avatar_url }}" alt="{{ user.login }}" class="w-24 h-24 rounded-full border-4 border-white shadow-lg">
+                <div>
+                    <h1 class="text-3xl font-bold text-white">{{ user.name }}</h1>
+                    <p class="text-blue-100 text-lg">@{{ user.login }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="p-8">
+            <div class="grid md:grid-cols-4 gap-6">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-gray-800">{{ user.followers }}</div>
+                    <div class="text-gray-600">Followers</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-gray-800">{{ user.following }}</div>
+                    <div class="text-gray-600">Following</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-gray-800">{{ user.public_repos }}</div>
+                    <div class="text-gray-600">Public Repos</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-gray-800">{{ user.account_age_days }}</div>
+                    <div class="text-gray-600">Days on GitHub</div>
+                </div>
+            </div>
+            {% if user.bio %}
+            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                <p class="text-gray-700">{{ user.bio }}</p>
+            </div>
+            {% endif %}
+            <div class="mt-4">
+                <a href="{{ user.html_url }}" target="_blank" class="text-blue-600 hover:underline">View on GitHub →</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Health Score Section -->
+    <div class="bg-white rounded-2xl shadow-xl p-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Repository Health Score</h2>
+        <div class="flex items-center justify-between flex-wrap gap-6">
+            <div class="text-center">
+                <div class="text-6xl font-bold {% if health_score.score >= 60 %}text-green-600{% elif health_score.score >= 40 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                    {{ "%.1f"|format(health_score.score) }}
+                </div>
+                <div class="text-gray-600 mt-2">Overall Score</div>
+            </div>
+            <div class="flex-1">
+                <div class="bg-gray-200 rounded-full h-4 overflow-hidden">
+                    <div class="bg-blue-600 h-4 rounded-full" style="width: {{ health_score.score }}%"></div>
+                </div>
+                <div class="mt-4 text-center">
+                    <span class="inline-block px-4 py-2 rounded-full text-sm font-semibold 
+                        {% if health_score.rating == 'Excellent' %}bg-green-100 text-green-700
+                        {% elif health_score.rating == 'Good' %}bg-blue-100 text-blue-700
+                        {% elif health_score.rating == 'Fair' %}bg-yellow-100 text-yellow-700
+                        {% else %}bg-red-100 text-red-700{% endif %}">
+                        {{ health_score.rating }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4 text-center text-sm">
+            <div><span class="font-semibold">{{ "%.1f"|format(health_score.details.stars_score) }}</span><br>Stars</div>
+            <div><span class="font-semibold">{{ "%.1f"|format(health_score.details.forks_score) }}</span><br>Forks</div>
+            <div><span class="font-semibold">{{ "%.1f"|format(health_score.details.activity_score) }}</span><br>Activity</div>
+            <div><span class="font-semibold">{{ "%.1f"|format(health_score.details.issue_score) }}</span><br>Issues</div>
+            <div><span class="font-semibold">{{ health_score.details.diversity_score }}</span><br>Diversity</div>
+        </div>
+    </div>
+    
+    <!-- Key Metrics -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="text-yellow-500 text-2xl mb-2">⭐</div>
+            <div class="text-2xl font-bold">{{ analytics.total_stars }}</div>
+            <div class="text-gray-600">Total Stars</div>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="text-green-500 text-2xl mb-2">🍴</div>
+            <div class="text-2xl font-bold">{{ analytics.total_forks }}</div>
+            <div class="text-gray-600">Total Forks</div>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="text-red-500 text-2xl mb-2">⚠️</div>
+            <div class="text-2xl font-bold">{{ analytics.repos_with_issues }}</div>
+            <div class="text-gray-600">Repos with Issues</div>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="text-blue-500 text-2xl mb-2">📁</div>
+            <div class="text-2xl font-bold">{{ analytics.average_repo_size }} KB</div>
+            <div class="text-gray-600">Avg Repo Size</div>
+        </div>
+    </div>
+    
+    <!-- Top Repos -->
+    <div class="grid md:grid-cols-2 gap-6">
+        {% if analytics.top_starred_repo %}
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="font-bold text-lg mb-3">🏆 Most Starred Repo</h3>
+            <a href="{{ analytics.top_starred_repo.html_url }}" target="_blank" class="text-blue-600 hover:underline font-semibold">
+                {{ analytics.top_starred_repo.name }}
+            </a>
+            <p class="text-gray-600 text-sm mt-2">
+    {{ analytics.top_starred_repo.description[:100] ~ '...' if analytics.top_starred_repo.description else 'No description available' }}
+</p>
+            <div class="mt-3 flex gap-4 text-sm">
+                <span>⭐ {{ analytics.top_starred_repo.stars }}</span>
+                <span>🍴 {{ analytics.top_starred_repo.forks }}</span>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if analytics.most_forked_repo %}
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="font-bold text-lg mb-3">📌 Most Forked Repo</h3>
+            <a href="{{ analytics.most_forked_repo.html_url }}" target="_blank" class="text-blue-600 hover:underline font-semibold">
+                {{ analytics.most_forked_repo.name }}
+            </a>
+            <p class="text-gray-600 text-sm mt-2">{{ analytics.most_forked_repo.description[:100] ~ '...' if analytics.most_forked_repo.description else 'No description available' }}</p>
+            <div class="mt-3 flex gap-4 text-sm">
+                <span>⭐ {{ analytics.most_forked_repo.stars }}</span>
+                <span>🍴 {{ analytics.most_forked_repo.forks }}</span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Language Distribution Chart -->
+    {% if analytics.language_distribution %}
+    <div class="bg-white rounded-2xl shadow-xl p-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Language Distribution</h2>
+        <canvas id="languageChart" height="100"></canvas>
+    </div>
+    {% endif %}
+    
+    <!-- Repository List -->
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="px-8 py-6 border-b">
+            <h2 class="text-2xl font-bold text-gray-800">All Repositories ({{ repos|length }})</h2>
+        </div>
+        <div class="divide-y">
+            {% for repo in repos[:20] %}
+            <div class="p-6 hover:bg-gray-50 transition">
+                <div class="flex justify-between items-start flex-wrap gap-4">
+                    <div class="flex-1">
+                        <a href="{{ repo.html_url }}" target="_blank" class="text-xl font-semibold text-blue-600 hover:underline">
+                            {{ repo.name }}
+                        </a>
+                        <p class="text-gray-600 mt-1">{{ repo.description }}</p>
+                        <div class="flex gap-4 mt-3 text-sm">
+                            <span class="flex items-center gap-1">⭐ {{ repo.stars }}</span>
+                            <span class="flex items-center gap-1">🍴 {{ repo.forks }}</span>
+                            <span class="flex items-center gap-1">⚠️ {{ repo.open_issues }} issues</span>
+                            <span class="flex items-center gap-1">💾 {{ repo.size_kb }} KB</span>
+                            {% if repo.language != 'Unknown' %}
+                            <span class="flex items-center gap-1">🔷 {{ repo.language }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        Updated: {{ repo.updated_at[:10] }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    {% if analytics.inactive_repos %}
+    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+        <h3 class="font-semibold text-yellow-800 mb-2">⚠️ Inactive Repositories</h3>
+        <p class="text-yellow-700">These repositories haven't been updated in 6+ months:</p>
+        <div class="flex flex-wrap gap-2 mt-2">
+            {% for repo_name in analytics.inactive_repos[:10] %}
+            <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">{{ repo_name }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% if analytics.language_distribution %}
+<script>
+    const ctx = document.getElementById('languageChart').getContext('2d');
+    const languageData = {{ analytics.language_distribution|tojson }};
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(languageData),
+            datasets: [{
+                label: 'Number of Repositories',
+                data: Object.values(languageData),
+                backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                borderColor: 'rgba(59, 130, 246, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

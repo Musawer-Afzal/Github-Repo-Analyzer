@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-xl p-12 text-center">
+        <div class="text-8xl mb-6">😕</div>
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">Oops! Something went wrong</h1>
+        <p class="text-gray-600 mb-8">{{ error }}</p>
+        <div class="flex gap-4 justify-center">
+            <a href="/" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                Try Again
+            </a>
+            <a href="https://github.com" target="_blank" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                Visit GitHub
+            </a>
+        </div>
+        <div class="mt-8 p-4 bg-gray-50 rounded-lg text-left">
+            <h3 class="font-semibold mb-2">💡 Tips:</h3>
+            <ul class="text-sm text-gray-600 space-y-1">
+                <li>• Check if the username is spelled correctly</li>
+                <li>• GitHub might be experiencing high traffic</li>
+                <li>• You might have hit GitHub's rate limit (wait a minute)</li>
+                <li>• Try searching for another username</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
