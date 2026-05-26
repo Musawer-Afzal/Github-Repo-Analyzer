@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Query
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from ..services.github_service import GitHubService
@@ -10,7 +10,11 @@ router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/analyze", response_class=HTMLResponse)
-async def analyze_user(request: Request, username: str):
+async def analyze_user(
+        request: Request,
+        username: str,
+        page: int = Query(default=1)
+    ):
     # Validate input
     is_valid, error_msg = validate_github_username(username)
     if not is_valid:
@@ -26,7 +30,11 @@ async def analyze_user(request: Request, username: str):
         analytics_service = AnalyticsService()
         
         user_data = await github_service.get_user_profile(username)
-        repos_data = await github_service.get_user_repositories(username)
+        repos_data = await github_service.get_user_repositories(
+            username=username,
+            page=page,
+            per_page=20
+        )
         
         # Calculate analytics
         analytics = analytics_service.calculate_all_analytics(repos_data)
@@ -39,7 +47,8 @@ async def analyze_user(request: Request, username: str):
                 "user": user_data,
                 "repos": repos_data,
                 "analytics": analytics,
-                "health_score": health_score
+                "health_score": health_score,
+                "page": page
             }
         )
         
