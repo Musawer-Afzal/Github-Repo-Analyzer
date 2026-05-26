@@ -54,12 +54,21 @@ class GitHubService:
         except httpx.RequestError:
             raise HTTPException(status_code=503, detail="Cannot reach GitHub API. Please try again later.")
     
-    async def get_user_repositories(self, username: str) -> list:
+    async def get_user_repositories(
+        self,
+        username: str,
+        page: int = 1,
+        per_page: int = 20
+    ) -> list:
         try:
             response = await self.client.get(
                 f"{self.base_url}/users/{username}/repos",
                 headers=self.headers,
-                params={"per_page": 100, "sort": "updated"}
+                params={
+                    "per_page": per_page,
+                    "page": page,
+                    "sort": "updated"
+                }
             )
             
             if response.status_code != 200:
@@ -84,7 +93,7 @@ class GitHubService:
                 }
                 
                 # Get languages for this repo
-                enriched["languages"] = await self._get_repo_languages(username, repo['name'])
+                # enriched["languages"] = await self._get_repo_languages(username, repo['name'])
                 enriched_repos.append(enriched)
             
             return enriched_repos
