@@ -58,7 +58,17 @@ class AnalyticsService:
     
     def calculate_health_score(self, repos: list, user_data: dict) -> dict:
         if not repos:
-            return {"score": 0, "rating": "No Repositories", "details": {}}
+            return {
+                "score": 0,
+                "rating": "No Repositories",
+                "details": {
+                    "stars_score": 0,
+                    "forks_score": 0,
+                    "activity_score": 0,
+                    "issue_score": 0,
+                    "diversity_score": 0
+                }
+            }
         
         # Calculate health score components
         stars_score = min(sum(repo['stars'] for repo in repos) / 10, 30)
