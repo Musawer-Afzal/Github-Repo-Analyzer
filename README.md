@@ -119,7 +119,7 @@ The application handles:
 ## Edge Case Handling
 One handled edge case:
 
-* File: ==app/services/github_service.py==
+* File: <mark>app/services/github_service.py</mark>
 * Case: Some repositories return None for description
 * Fix: Safe fallback value applied before rendering
 
