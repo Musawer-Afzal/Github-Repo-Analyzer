@@ -51,5 +51,11 @@ async def analyze_user(request: Request, username: str):
             status_code=e.status_code
         )
     except Exception as e:
-        print("ERROR:", str(e))
-        raise e
+        return templates.TemplateResponse(
+            "error.html",
+            {
+                "request": request,
+                "error": "An unexpected error occurred. Please try again later."
+            },
+            status_code=500
+        )
