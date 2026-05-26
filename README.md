@@ -37,3 +37,22 @@ The application is built on top of the GitHub public API and enhances raw API da
 git clone https://github.com/your-username/github-repo-analyzer.git
 cd github-repo-analyzer
 ```
+
+## 2. Create Virtual Environment
+```bash
+python -m venv venv
+venv\Scripts\activate   # Windows
+source venv/bin/activate  # Mac/Linux
+```
+
+### 3. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Environment Variables
+Create a .env file:
+```python
+GITHUB_TOKEN=your_github_token_here
+API_TIMEOUT=10
+```
