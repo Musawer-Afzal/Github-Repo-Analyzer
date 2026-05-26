@@ -192,30 +192,81 @@
 
 {% if analytics.language_distribution %}
 <script>
-    const ctx = document.getElementById('languageChart').getContext('2d');
-    const languageData = {{ analytics.language_distribution|tojson }};
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: Object.keys(languageData),
-            datasets: [{
-                label: 'Number of Repositories',
-                data: Object.values(languageData),
-                backgroundColor: 'rgba(59, 130, 246, 0.5)',
-                borderColor: 'rgba(59, 130, 246, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { stepSize: 1 }
+        const ctx = document.getElementById('languageChart').getContext('2d');
+        const languageData = {{ analytics.language_distribution|tojson }};
+
+        const languageColors = {
+            "Python": "rgba(53, 114, 165, 0.7)",
+            "JavaScript": "rgba(240, 219, 79, 0.7)",
+            "TypeScript": "rgba(49, 120, 198, 0.7)",
+            "HTML": "rgba(227, 79, 38, 0.7)",
+            "CSS": "rgba(38, 77, 228, 0.7)",
+            "Jupyter Notebook": "rgba(244, 119, 37, 0.7)",
+            "MATLAB": "rgba(162, 20, 47, 0.7)",
+            "C++": "rgba(0, 89, 156, 0.7)",
+            "Java": "rgba(176, 114, 25, 0.7)",
+            "Go": "rgba(0, 173, 216, 0.7)",
+            "Rust": "rgba(222, 165, 132, 0.7)",
+            "Shell": "rgba(137, 224, 81, 0.7)",
+            "Unknown": "rgba(120, 120, 120, 0.7)"
+        };
+
+        const labels = Object.keys(languageData);
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Number of Repositories',
+                    data: Object.values(languageData),
+                    backgroundColor: labels.map(
+                        lang => languageColors[lang] || 'rgba(99, 102, 241, 0.7)'
+                    ),
+                    borderColor: labels.map(
+                        lang => languageColors[lang] || 'rgba(99, 102, 241, 1)'
+                    ),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
                 }
             }
-        }
-    });
+        });
 </script>
 {% endif %}
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    const nextPage = {{ page + 1 }};
+
+    try {
+        fetch(`/analyze?username={{ user.login }}&page=${nextPage}`);
+    } catch (err) {
+        console.log("Preload failed");
+    }
+});
+</script>
+
+<div class="flex justify-center gap-4 mt-8">
+
+    {% if page > 1 %}
+    <a href="/analyze?username={{ user.login }}&page={{ page - 1 }}"
+       class="px-5 py-2 bg-gray-200 rounded-lg">
+       Previous
+    </a>
+    {% endif %}
+
+    <a href="/analyze?username={{ user.login }}&page={{ page + 1 }}"
+       class="px-5 py-2 bg-blue-600 text-white rounded-lg">
+       Next
+    </a>
+
+</div>
 {% endblock %}
